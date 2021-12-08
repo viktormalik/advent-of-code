@@ -1,0 +1,19 @@
+use std::collections::HashSet;
+use std::fs;
+
+fn main() {
+    let input = fs::read_to_string("input").expect("Error reading the file");
+    let grid: HashSet<(i32, i32)> = input
+        .lines()
+        .enumerate()
+        .map(|(r, l)| {
+            l.chars()
+                .enumerate()
+                .filter(|(_, x)| *x == '#')
+                .map(move |(c, _)| (r as i32, c as i32))
+        })
+        .flatten()
+        .collect();
+    let middle = input.lines().count() / 2 + 1;
+    let mut pos: (i32, i32) = (middle, middle);
+}
