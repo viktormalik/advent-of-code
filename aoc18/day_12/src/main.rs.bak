@@ -1,0 +1,76 @@
+extern crate regex;
+
+use regex::Regex;
+use std::collections::HashMap;
+use std::fs;
+
+fn main() {
+    let input = fs::read_to_string("input").expect("Error reading file");
+
+    let init_re = Regex::new(r"^initial state: (.*)$").unwrap();
+    let rule_re = Regex::new(r"^(.*) => (.)$").unwrap();
+
+    let mut state: Vec<char> = init_re
+        .captures(input.trim().lines().next().unwrap())
+        .unwrap()[1]
+        .chars()
+        .collect();
+
+    let mut rules = HashMap::new();
+    for line in input.trim().lines().skip(2) {
+        let cap = rule_re.captures(line).unwrap();
+        let rule: Vec<char> = cap[1].chars().collect();
+
+        rules.insert(
+            rule_index(rule.iter().as_slice()),
+            cap[2].chars().next().unwrap(),
+        );
+    }
+
+    let mut shift: i64 = add_borders(&mut state);
+    for k in 0i64..50000000000 {
+        let state_prev = state.clone();
+        for i in 2..state.len() - 3 {
+            state[i] = *rules
+                .entry(rule_index(&state_prev[i - 2..i + 3]))
+                .or_insert('.');
+        }
+        shift += add_borders(&mut state);
+        if equal(&state, &state_prev) {
+            state = state.iter().skip(shift as usize).cloned().collect();
+            shift = 50000000000 - (k + 1);
+            break;
+        }
+    }
+
+    let res: i64 = { 0..state.len() }
+        .filter(|&i| state[i] == '#')
+        .map(|i| (i as i64) + shift)
+        .sum();
+    println!("{}", res);
+}
+
+fn rule_index(rule: &[char]) -> u32 {
+    rule.iter()
+        .fold(0u32, |res, x| res * 2 + (*x == '#') as u32)
+}
+
+fn add_borders(state: &mut Vec<char>) -> i64 {
+    let mut res: i64 = 0;
+    while state[0..4] != ['.', '.', '.', '.'] {
+        res += 1;
+        state.insert(0, '.');
+    }
+    while state[state.len() - 4..] != ['.', '.', '.', '.'] {
+        state.push('.');
+    }
+    res
+}
+
+fn equal(state: &Vec<char>, state_prev: &Vec<char>) -> bool {
+    state
+        .iter()
+        .skip_while(|&c| c == &'.')
+        .cloned()
+        .eq(state_prev.iter().skip_while(|&c| c == &'.').cloned())
+}

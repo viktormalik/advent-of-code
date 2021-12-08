@@ -1,0 +1,235 @@
+use std::collections::HashMap;
+use std::collections::VecDeque;
+use std::fs;
+
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd, Clone, Hash)]
+enum Tool {
+    NONE,
+    TORCH,
+    CLIMB,
+}
+
+#[derive(Eq, PartialEq, Ord, PartialOrd, Clone)]
+struct Pt {
+    x: usize,
+    y: usize,
+}
+
+impl Pt {
+    fn next(&self, max_x: usize, max_y: usize) -> Vec<Pt> {
+        let mut res: Vec<Pt> = Vec::new();
+        if self.x > 0 {
+            res.push(Pt {
+                x: self.x - 1,
+                y: self.y,
+            });
+        }
+        if self.x < max_x {
+            res.push(Pt {
+                x: self.x + 1,
+                y: self.y,
+            });
+        }
+        if self.y > 0 {
+            res.push(Pt {
+                x: self.x,
+                y: self.y - 1,
+            });
+        }
+        if self.y < max_y {
+            res.push(Pt {
+                x: self.x,
+                y: self.y + 1,
+            });
+        }
+        res
+    }
+}
+
+fn parse_pt(line: &str) -> Pt {
+    let coors = line.split_whitespace().nth(1).unwrap().split(',');
+    Pt {
+        x: coors.nth(0).unwrap().parse(),
+        y: coors.nth(1).unwrap().parse(),
+    }
+}
+
+fn compute_grid(
+    geo_index: &mut Vec<Vec<usize>>,
+    erosion_level: &mut Vec<Vec<usize>>,
+    region_type: &mut Vec<Vec<usize>>,
+    pt: Pt,
+    target: &Pt,
+    depth: usize,
+) {
+    if pt.x >= geo_index.len() {
+        let width = geo_index[0].len();
+        geo_index.push(vec![0; width]);
+        erosion_level.push(vec![0; width]);
+        region_type.push(vec![0; width]);
+    }
+    if pt.y >= geo_index[pt.x].len() {
+        geo_index[pt.x].push(0);
+        erosion_level[pt.x].push(0);
+        region_type[pt.x].push(0);
+    }
+    geo_index[pt.x][pt.y] = match (pt.x, pt.y) {
+        region if region == (target.x, target.y) => 0,
+        (0, y) => (y * 48271) % 20183,
+        (x, 0) => (x * 16807) % 20183,
+        (x, y) => (erosion_level[x - 1][y] * erosion_level[x][y - 1]) % 20183,
+    };
+    erosion_level[pt.x][pt.y] = (geo_index[pt.x][pt.y] + depth) % 20183;
+    region_type[pt.x][pt.y] = erosion_level[pt.x][pt.y] % 3;
+}
+
+fn compatible(reg_type: &usize) -> Vec<Tool> {
+    match *reg_type {
+        0 => vec![Tool::TORCH, Tool::CLIMB],
+        1 => vec![Tool::NONE, Tool::CLIMB],
+        2 => vec![Tool::NONE, Tool::TORCH],
+        _ => Vec::new(),
+    }
+}
+
+fn main() {
+    let input = fs::read_to_string("input").expect("Error reading the file");
+    let depth = input
+        .lines()
+        .nth(0)
+        .unwrap()
+        .split_whitespace()
+        .nth(1)
+        .unwrap()
+        .parse()
+        .unwrap();
+    let target = parse_pt(input.lines().nth(1).unwrap());
+
+    let mut geo_index: Vec<Vec<usize>> = vec![vec![0; target.y + 1]; target.x + 1];
+    let mut erosion_level: Vec<Vec<usize>> = geo_index.to_vec();
+    let mut region_type: Vec<Vec<usize>> = geo_index.to_vec();
+
+    for x in 0..target.x + 1 {
+        for y in 0..target.y + 1 {
+            compute_grid(
+                &mut geo_index,
+                &mut erosion_level,
+                &mut region_type,
+                Pt { x: x, y: y },
+                &target,
+                depth,
+            );
+        }
+    }
+
+    let risk: usize = region_type
+        .iter()
+        .map::<usize, _>(|row| row.iter().sum())
+        .sum();
+    println!("First: {}", risk);
+
+    let mut dst: Vec<Vec<HashMap<Tool, i32>>> =
+        vec![vec![HashMap::new(); target.y + 1]; target.x + 1];
+    let mut to_explore = VecDeque::new();
+    dst[0][0].insert(Tool::TORCH, 0);
+    to_explore.push_back(Pt { x: 0, y: 0 });
+
+    let mut min_dst = 10000;
+    let mut same = 0;
+
+    loop {
+        while !to_explore.is_empty() {
+            let r = to_explore.pop_front().unwrap();
+            for next in r.next(dst.len() - 1, dst[0].len() - 1) {
+                let compatible_tools = compatible(&region_type[next.x][next.y]);
+                for (tool, d) in dst[r.x][r.y].clone() {
+                    if compatible_tools.contains(&tool) {
+                        dst[next.x][next.y]
+                            .entry(tool)
+                            .and_modify(|e| {
+                                if *e > d + 1 {
+                                    to_explore.push_back(next.clone());
+                                    *e = d + 1
+                                }
+                            })
+                            .or_insert_with(|| {
+                                to_explore.push_back(next.clone());
+                                d + 1
+                            });
+                    } else {
+                        for t in &compatible_tools {
+                            if compatible(&region_type[r.x][r.y]).contains(t) {
+                                dst[next.x][next.y]
+                                    .entry(t.clone())
+                                    .and_modify(|e| {
+                                        if *e > d + 8 {
+                                            to_explore.push_back(next.clone());
+                                            *e = d + 8
+                                        }
+                                    })
+                                    .or_insert_with(|| {
+                                        to_explore.push_back(next.clone());
+                                        d + 8
+                                    });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for (tool, d) in dst[target.x][target.y].iter_mut() {
+            if *tool != Tool::TORCH {
+                *d += 7;
+            }
+        }
+
+        let min = dst[target.x][target.y].values().min().unwrap().clone();
+
+        for (tool, d) in dst[target.x][target.y].iter_mut() {
+            if *tool != Tool::TORCH {
+                *d -= 7;
+            }
+        }
+
+        if min_dst == min {
+            same += 1;
+            if same == 50 {
+                break;
+            }
+        } else {
+            same = 0;
+            min_dst = min;
+        }
+
+        let width = region_type[0].len();
+        let height = region_type.len();
+        for x in 0..region_type.len() {
+            compute_grid(
+                &mut geo_index,
+                &mut erosion_level,
+                &mut region_type,
+                Pt { x: x, y: width },
+                &target,
+                depth,
+            );
+            to_explore.push_back(Pt { x: x, y: width - 1 });
+            dst[x].push(HashMap::new());
+        }
+        dst.push(vec![HashMap::new(); width + 1]);
+        for y in 0..region_type[0].len() {
+            compute_grid(
+                &mut geo_index,
+                &mut erosion_level,
+                &mut region_type,
+                Pt { x: height, y: y },
+                &target,
+                depth,
+            );
+            to_explore.push_back(Pt {
+                x: height - 1,
+                y: y,
+            });
+        }
+    }
+    println!("Second: {}", min_dst);
+}
