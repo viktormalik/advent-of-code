@@ -7,5 +7,5 @@ Individual years are solved in different languages:
 - 2018: Rust
 - 2019: Rust
 - 2020: Rust
-- 2021: Rust
+- 2021: Kotlin
 
