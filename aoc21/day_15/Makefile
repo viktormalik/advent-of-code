@@ -1,3 +1,4 @@
+DEPS = pathutils
 JARS = $(DEPS:%=../%/lib.jar)
 CP = $(if $(JARS),$(JARS:$() $()=:),"")
 
