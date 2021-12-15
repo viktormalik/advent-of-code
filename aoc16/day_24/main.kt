@@ -1,19 +1,17 @@
 import pathutils.Pos
+import pathutils.fourNeighs
 import pathutils.shortest
 import java.io.File
 
 fun neighs(pos: Pos, map: List<CharArray>): List<Pos> =
-    listOf(
-        Pos(pos.x + 1, pos.y), Pos(pos.x - 1, pos.y),
-        Pos(pos.x, pos.y + 1), Pos(pos.x, pos.y - 1),
-    ).filter { p -> map[p.x][p.y] != '#' }
+    fourNeighs(pos).filter { p -> map[p.x][p.y] != '#' }
 
 fun allDsts(pois: Map<Char, Pos>, map: List<CharArray>): Map<String, Int> {
     val dsts = mutableMapOf<String, Int>()
     for ((p1, pos1) in pois) {
         for ((p2, pos2) in pois) {
             if (p1 != p2) {
-                val d = shortest(pos1, pos2, map, ::neighs)!!
+                val d = shortest(pos1, pos2, map, ::neighs)!!.len()
                 dsts.put("" + p1 + p2, d)
                 dsts.put("" + p2 + p1, d)
             }

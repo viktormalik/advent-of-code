@@ -1,4 +1,5 @@
 import pathutils.Pos
+import pathutils.fourNeighs
 import pathutils.shortest
 import java.io.File
 
@@ -18,14 +19,8 @@ fun fits(n1: Node, n2: Node): Boolean =
 fun interchangeable(n1: Node, n2: Node): Boolean =
     n1.size > n2.used && n2.size > n1.used && !n1.target && !n2.target
 
-fun isNeighbor(pos: Pos, neigh: Pos, nodes: Map<Pos, Node>): Boolean =
-    nodes[neigh] != null && interchangeable(nodes[neigh]!!, nodes[pos]!!)
-
 fun neighs(pos: Pos, nodes: Map<Pos, Node>): List<Pos> =
-    listOf(
-        Pos(pos.x + 1, pos.y), Pos(pos.x - 1, pos.y),
-        Pos(pos.x, pos.y + 1), Pos(pos.x, pos.y - 1),
-    ).filter { isNeighbor(pos, it, nodes) }
+    fourNeighs(pos).filter { nodes[it] != null && interchangeable(nodes[it]!!, nodes[pos]!!) }
 
 fun main() {
     val nodes = File("input").readLines().drop(2).map { parsePos(it) to parseNode(it) }.toMap()
@@ -47,7 +42,7 @@ fun main() {
     while (!mainPath.isEmpty()) {
         val nextTarget = mainPath.first()
         mainPath.removeFirst()
-        totalLen += shortest(empty, nextTarget, nodes, ::neighs)!! + 1
+        totalLen += shortest(empty, nextTarget, nodes, ::neighs)!!.len() + 1
         nodes[target]!!.target = false
         nodes[nextTarget]!!.target = true
         empty = target
