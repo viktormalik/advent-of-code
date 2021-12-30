@@ -1,6 +1,8 @@
 package pathutils
 
-data class Pos(val x: Int, val y: Int)
+data class Pos(val x: Int, val y: Int) {
+    fun clone(): Pos = Pos(x, y)
+}
 data class Path(val ps: List<Pos>, val dst: Int) {
     fun len(): Int = ps.size - 1
 }
