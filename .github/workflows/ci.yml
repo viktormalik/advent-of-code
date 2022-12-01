@@ -7,6 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: 4.14.0
+      - run: opam install -y dune yojson
       - run: ./test.sh
 
   lint:
@@ -17,5 +21,10 @@ jobs:
           curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.43.0/ktlint &&
           chmod a+x ktlint &&
           sudo mv ktlint /usr/local/bin/
+      - uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: 4.14.0
+      - run: opam install -y ocamlformat
       - run: ktlint --disabled_rules=filename
-      - run: find -name *.rs -exec rustfmt \{\} \;
+      - run: find -name *.rs | xargs -n1 rustfmt
+      - run: find -name *.ml -not -path "./_opam/*" | xargs -n1 opam exec -- ocamlformat --check
