@@ -1,0 +1,3 @@
+(executable
+ (name day_12)
+ (libraries input str yojson))

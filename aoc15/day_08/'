@@ -1,0 +1,28 @@
+let input = Input.char_lists "input" in
+
+let rec memsize_rec chars =
+  match chars with
+  | [] -> 0
+  | '\\' :: 'x' :: _ :: _ :: rs -> 1 + (memsize_rec rs)
+  | '\\' :: '\\' :: rs | '\\' :: '"' :: rs -> 1 + (memsize_rec rs)
+  | _ :: rs -> 1 + (memsize_rec rs)
+in
+let memsize chars = (memsize_rec chars) - 2 in
+
+let rec encode_rec chars =
+  match chars with
+  | [] -> []
+  | '\\' :: rs -> '\\' :: '\\' :: encode_rec rs
+  | '"' :: rs -> '\\' :: '"' :: encode_rec rs
+  | h :: rs -> h :: encode_rec rs
+in
+let encode chars = ('"' :: encode_rec chars) @ ['"'] in
+
+let mem = List.fold_left ( + ) 0 (List.map memsize input) in
+let code = List.fold_left ( + ) 0 (List.map List.length input) in
+let encoded_len = List.fold_left ( + ) 0 (List.map List.length (List.map encode input)) in
+let first = code - mem in
+let second = encoded_len - code in
+Printf.printf "First: %d\n" first;
+Printf.printf "Second: %d\n" second
+
