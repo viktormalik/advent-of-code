@@ -14,3 +14,7 @@ let lines filename =
 
 let char_lists filename = List.map line_to_chars (lines filename)
 let parse_lines f filename = List.map f (lines filename)
+
+let parse_pair delim f str =
+  let split = List.map f (String.split_on_char delim str) in
+  (List.nth split 0, List.nth split 1)
