@@ -25,6 +25,9 @@ let find_index pred lst =
 
 let chars_of_string str = List.init (String.length str) (String.get str)
 let slice lst from n = List.filteri (fun i _ -> i >= from && i < from + n) lst
+let slice_end lst from = slice lst from (List.length lst - from)
 
 let is_sublist lst sublst =
   List.filteri (fun i _ -> slice lst i (List.length sublst) = sublst) lst != []
+
+let int_of_char c = Char.code c - Char.code '0'

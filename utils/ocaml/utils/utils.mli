@@ -4,4 +4,6 @@ val int_list : int -> int -> int list
 val find_index : ('a -> bool) -> 'a list -> int
 val chars_of_string : string -> char list
 val slice : 'a list -> int -> int -> 'a list
+val slice_end : 'a list -> int -> 'a list
 val is_sublist : 'a list -> 'a list -> bool
+val int_of_char : char -> int
