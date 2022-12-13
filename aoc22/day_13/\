@@ -1,0 +1,8 @@
+type packet = Num of int | List of packet list;;
+
+let input = Input.char_lists "input" in
+
+let parse_packet chars =
+  match chars with
+  | c :: cs when c 
+
