@@ -18,3 +18,9 @@ let parse_lines f filename = List.map f (lines filename)
 let parse_pair delim f str =
   let split = List.map f (String.split_on_char delim str) in
   (List.nth split 0, List.nth split 1)
+
+let num_drop_suffix str =
+  String.trim
+    (String.map
+       (fun c -> if (c >= '0' && c <= '9') || c = '-' then c else ' ')
+       str)
