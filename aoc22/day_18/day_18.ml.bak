@@ -1,0 +1,64 @@
+let parse line =
+  let split = List.map int_of_string (String.split_on_char ',' line) in
+  (List.nth split 0, List.nth split 1, List.nth split 2)
+in
+let cubes = Input.parse_lines parse "input" in
+
+let xmax, ymax, zmax =
+  List.fold_left
+    (fun (xmax, ymax, zmax) (x, y, z) -> (max x xmax, max y ymax, max z zmax))
+    (0, 0, 0) cubes
+in
+let all =
+  List.flatten
+    (List.map
+       (fun x ->
+         List.flatten
+           (List.map
+              (fun y -> List.map (fun z -> (x, y, z)) (Utils.int_list (-1) (zmax
+              + 1)))
+              (Utils.int_list (-1) (ymax + 1))))
+       (Utils.int_list (-1) (xmax + 1)))
+in
+
+let adj_front (x1, y1, z1) (x2, y2, z2) = x1 = x2 && y1 = y2 && z2 - z1 = 1 in
+let adj_back (x1, y1, z1) (x2, y2, z2) = x1 = x2 && y1 = y2 && z1 - z2 = 1 in
+let adj_top (x1, y1, z1) (x2, y2, z2) = x1 = x2 && y2 - y1 = 1 && z1 = z2 in
+let adj_bottom (x1, y1, z1) (x2, y2, z2) = x1 = x2 && y1 - y2 = 1 && z1 = z2 in
+let adj_right (x1, y1, z1) (x2, y2, z2) = x2 - x1 = 1 && y1 = y2 && z1 = z2 in
+let adj_left (x1, y1, z1) (x2, y2, z2) = x1 - x2 = 1 && y1 = y2 && z1 = z2 in
+
+let front (x1, y1, z1) (x2, y2, z2) = x1 = x2 && y1 = y2 && z2 > z1 in
+let back (x1, y1, z1) (x2, y2, z2) = x1 = x2 && y1 = y2 && z1 > z2 in
+let top (x1, y1, z1) (x2, y2, z2) = x1 = x2 && y2 > y1 && z1 = z2 in
+let bottom (x1, y1, z1) (x2, y2, z2) = x1 = x2 && y1 > y2 && z1 = z2 in
+let right (x1, y1, z1) (x2, y2, z2) = x2 > x1 && y1 = y2 && z1 = z2 in
+let left (x1, y1, z1) (x2, y2, z2) = x1 > x2 && y1 = y2 && z1 = z2 in
+
+let is_surface cube fn =
+  not (List.exists (fun c -> c != cube && fn cube c) cubes)
+in
+let surface cube =
+  let fns = [ adj_front; adj_back; adj_top; adj_bottom; adj_right; adj_left ] in
+  List.length (List.filter (is_surface cube) fns)
+in
+let inner cube =
+  let fns = [ front; back; top; bottom; right; left ] in
+  (not (List.exists (fun c -> c = cube) cubes))
+  && List.for_all (fun f -> not (is_surface cube f)) fns
+in
+
+let inner = List.filter inner all in
+
+let is_exterior cube fn =
+  is_surface cube fn && not (List.exists (fun c -> fn cube c) inner)
+in
+let exterior cube =
+  let fns = [ adj_front; adj_back; adj_top; adj_bottom; adj_right; adj_left ] in
+  List.length (List.filter (is_exterior cube) fns)
+in
+
+let first = List.fold_left ( + ) 0 (List.map surface cubes) in
+Printf.printf "First: %d\n" first;
+let second = List.fold_left ( + ) 0 (List.map exterior cubes) in
+Printf.printf "Second: %d\n" second
