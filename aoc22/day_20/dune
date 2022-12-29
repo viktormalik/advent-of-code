@@ -1,0 +1,3 @@
+(executable
+ (name day_20)
+ (libraries input utils))
