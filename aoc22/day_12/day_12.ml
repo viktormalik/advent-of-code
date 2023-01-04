@@ -1,5 +1,4 @@
-let parse line = Array.of_list (Utils.chars_of_string line) in
-let map = Array.of_list (Input.parse_lines parse "input") in
+let map = Input.matrix "input" in
 
 let valid map dists (sx, sy) (dx, dy) =
   dx >= 0

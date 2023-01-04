@@ -1,8 +1,4 @@
-let init_grove =
-  Array.of_list
-    (List.map (fun row -> Array.of_list row) (Input.char_lists "input"))
-in
-
+let init_grove = Input.matrix "input" in
 let init_dirs =
   [
     [ (-1, 0); (-1, -1); (-1, 1) ];
