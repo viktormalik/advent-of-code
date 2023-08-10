@@ -8,6 +8,10 @@ else
     YEARS=$1
 fi
 
+if [[ -n $2 ]]; then
+    LANGS=$2
+fi
+
 declare -A lang_names=(
     ["rust"]="Rust"
     ["ocaml"]="OCaml"
@@ -94,7 +98,12 @@ for year in $YEARS; do
     if $(ls day* > /dev/null 2>&1); then
         run_year $year
     else
-        for lang in $(ls); do
+        if [[ -z $LANGS ]]; then
+            langs=$(ls)
+        else
+            langs=$(ls | grep $LANGS)
+        fi
+        for lang in $langs; do
             cd $lang
             run_year $year $lang
             cd ..
