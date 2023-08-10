@@ -53,7 +53,12 @@ run_kotlin() {
 
 run_year() {
     year=$1
-    get_lang
+
+    if [[ -z $2 ]]; then
+        get_lang
+    else
+        lang=$2
+    fi
 
     echo -----------------
     echo "AoC 20${year:3:2} (${lang_names[$lang]})"
@@ -85,7 +90,17 @@ run_year() {
 status=0
 for year in $YEARS; do
     cd $year
-    run_year $year
+
+    if $(ls day* > /dev/null 2>&1); then
+        run_year $year
+    else
+        for lang in $(ls); do
+            cd $lang
+            run_year $year $lang
+            cd ..
+        done
+    fi
+
     cd ..
     echo
 done
