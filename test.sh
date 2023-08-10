@@ -1,48 +1,76 @@
 #!/bin/bash
 
+root=$PWD
+
 if [[ -z $1 ]]; then
     YEARS=$(ls | grep aoc)
 else
     YEARS=$1
 fi
 
-# Install OCaml utils
-for u in $(ls utils/ocaml); do
-    cd utils/ocaml/$u
-    opam exec -- dune build
-    opam exec -- dune install 2> /dev/null
-    cd $OLDPWD
-done
+declare -A lang_names=(
+    ["rust"]="Rust"
+    ["ocaml"]="OCaml"
+    ["kotlin"]="Kotlin"
+)
 
-status=0
-for year in $YEARS; do
-    cd $year
-    echo ---------
-    echo "AoC 20"${year:3:2}
-    echo ---------
-
-    BUILD=
-    # Determine language
+get_lang() {
     if [[ ! -z $(find -name "*.rs") ]]; then
-        # Rust -> use Cargo
-        RUN="cargo run --release -q"
+        lang="rust"
     elif [[ ! -z $(find -name "*.ml") ]]; then
-        # OCaml -> use Dune
-        BUILD="opam exec -- dune build"
-        RUN="_build/default/DAY.exe"
+        lang="ocaml"
+    elif [[ ! -z $(find -name "*.kt") ]]; then
+        lang="kotlin"
     else
-        # Everything else (currently Kotlin) -> use make
-        RUN="make run -s"
+        lang="unknown"
+    fi
+}
+
+run_rust() {
+    cargo run --release -q
+}
+
+install_ocaml() {
+    for u in $(ls $root/utils/ocaml); do
+        cd $root/utils/ocaml/$u
+        opam exec -- dune build
+        opam exec -- dune install 2> /dev/null
+        cd $OLDPWD
+    done
+}
+
+build_ocaml() {
+    opam exec -- dune build
+}
+
+run_ocaml() {
+    _build/default/$1.exe
+}
+
+run_kotlin() {
+    make run -s
+}
+
+run_year() {
+    year=$1
+    get_lang
+
+    echo -----------------
+    echo "AoC 20${year:3:2} (${lang_names[$lang]})"
+    echo -----------------
+
+    if [[ $(type -t install_$lang) == function ]]; then
+        install_$lang
     fi
 
     # Run tests (for each day, compare output with expected)
     for day in $(ls | grep day); do
         cd $day
-        if [[ ! -z $BUILD ]]; then
-            $BUILD
+        if [[ $(type -t build_$lang) == function ]]; then
+            build_$lang
         fi
         echo -n $day:
-        diff=$(diff <(${RUN/DAY/$day}) expected)
+        diff=$(diff <(run_$lang $day) expected)
         if [[ $? -eq 0 ]]; then
             echo OK
         else
@@ -52,7 +80,12 @@ for year in $YEARS; do
         fi
         cd ..
     done
+}
 
+status=0
+for year in $YEARS; do
+    cd $year
+    run_year $year
     cd ..
     echo
 done
