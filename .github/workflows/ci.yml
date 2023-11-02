@@ -11,6 +11,9 @@ jobs:
         with:
           ocaml-compiler: 4.14.0
       - run: opam install -y dune yojson
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.21'
       - run: ./test.sh
 
   lint:
@@ -28,3 +31,4 @@ jobs:
       - run: ktlint --disabled_rules=filename
       - run: find -name *.rs | xargs -n1 rustfmt
       - run: find -name *.ml -not -path "./_opam/*" | xargs -n1 opam exec -- ocamlformat --check
+      - run: if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then exit 1; fi

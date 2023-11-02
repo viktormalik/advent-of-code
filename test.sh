@@ -16,6 +16,7 @@ declare -A lang_names=(
     ["rust"]="Rust"
     ["ocaml"]="OCaml"
     ["kotlin"]="Kotlin"
+    ["go"]="Go"
 )
 
 get_lang() {
@@ -25,6 +26,8 @@ get_lang() {
         lang="ocaml"
     elif [[ ! -z $(find -name "*.kt") ]]; then
         lang="kotlin"
+    elif [[ ! -z $(find -name "*.go") ]]; then
+        lang="go"
     else
         lang="unknown"
     fi
@@ -53,6 +56,10 @@ run_ocaml() {
 
 run_kotlin() {
     make run -s
+}
+
+run_go() {
+    go run .
 }
 
 run_year() {
