@@ -1,0 +1,16 @@
+package main
+
+import (
+    "bufio"
+	"fmt"
+	"os"
+)
+
+func main() {
+	input, _ := os.Open("input")
+	scanner := bufio.NewScanner(input)
+
+	for scanner.Scan() {
+		scanner.Text()
+	}
+}
