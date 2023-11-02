@@ -24,17 +24,17 @@ fn calc_ore(target_fuel: i64, reactions: &HashMap<String, Reaction>) -> i64 {
         if next.is_none() {
             return *produced.get("ORE").unwrap();
         }
-        let next_chem = next.unwrap().0.clone();
+        let next_chem = next.unwrap().0.to_string();
         let next_amount = next.unwrap().1;
 
-        let reaction = reactions.get(&next_chem.to_string()).unwrap();
+        let reaction = reactions.get(&next_chem).unwrap();
         let repeat = next_amount / reaction.amount
             + match next_amount % reaction.amount {
                 0 => 0,
                 _ => 1,
             };
 
-        *produced.get_mut(next_chem).unwrap() -= reaction.amount * repeat;
+        *produced.get_mut(&*next_chem).unwrap() -= reaction.amount * repeat;
         for src in reaction.srcs.iter() {
             *produced.entry(src.0.as_str()).or_insert(0) += src.1 * repeat;
         }
