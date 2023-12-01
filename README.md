@@ -10,4 +10,4 @@ Individual years are solved in different languages:
 - 2020: Rust
 - 2021: Kotlin
 - 2022: OCaml
-
+- 2023: Go
