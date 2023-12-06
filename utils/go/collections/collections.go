@@ -1,6 +1,9 @@
 package collections
 
-import "slices"
+import (
+	"slices"
+	"strconv"
+)
 
 type number interface {
 	int | float64
@@ -47,6 +50,14 @@ func Any[T any](xs []T, f func(T) bool) bool {
 		}
 	}
 	return false
+}
+
+func ParseInts(xs []string) (result []int) {
+	for _, x := range xs {
+		n, _ := strconv.Atoi(x)
+		result = append(result, n)
+	}
+	return
 }
 
 func SetAppend[T comparable](xs []T, e T) []T {
