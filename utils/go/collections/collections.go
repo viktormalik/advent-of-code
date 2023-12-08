@@ -6,7 +6,7 @@ import (
 )
 
 type number interface {
-	int | float64
+	int | int64 | float64
 }
 
 // Slice functions
@@ -50,6 +50,21 @@ func Any[T any](xs []T, f func(T) bool) bool {
 		}
 	}
 	return false
+}
+
+func Map[S, D any](xs []S, f func(S) D) (result []D) {
+	for _, x := range xs {
+		result = append(result, f(x))
+	}
+	return
+}
+
+func Reduce[T number](xs []T, init T, f func(T, T) T) T {
+	result := init
+	for _, x := range xs {
+		result = f(result, x)
+	}
+	return result
 }
 
 func ParseInts(xs []string) (result []int) {

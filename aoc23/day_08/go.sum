@@ -1,0 +1,4 @@
+github.com/TheAlgorithms/Go v0.0.3-alpha h1:lnph8xGHqRhYD5V2Ujkv7eJDTY+ydcwKZwYAHjDey2M=
+github.com/TheAlgorithms/Go v0.0.3-alpha/go.mod h1:yRPD24VV9SWwvNcDbe1+is5fIdebfgA9uNFWdAooIYU=
+golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb h1:c0vyKkb6yr3KR7jEfJaOSv4lG7xPkbN6r52aJz1d8a8=
+golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb/go.mod h1:iRJReGqOEeBhDZGkGbynYwcHlctCvnjTYIamk7uXpHI=
