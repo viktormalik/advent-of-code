@@ -52,6 +52,15 @@ func Any[T any](xs []T, f func(T) bool) bool {
 	return false
 }
 
+func All[T any](xs []T, f func(T) bool) bool {
+	for _, x := range xs {
+		if !f(x) {
+			return false
+		}
+	}
+	return true
+}
+
 func Map[S, D any](xs []S, f func(S) D) (result []D) {
 	for _, x := range xs {
 		result = append(result, f(x))
