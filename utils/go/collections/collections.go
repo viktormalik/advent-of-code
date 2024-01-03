@@ -84,11 +84,34 @@ func ParseInts(xs []string) (result []int) {
 	return
 }
 
+func ParseFloats(xs []string) (result []float64) {
+	for _, x := range xs {
+		n, _ := strconv.ParseFloat(x, 64)
+		result = append(result, float64(n))
+	}
+	return
+}
+
 func SetAppend[T comparable](xs []T, e T) []T {
 	if !slices.Contains(xs, e) {
 		return append(xs, e)
 	}
 	return xs
+}
+
+func SetIntersection[T comparable](xs []T, ys []T) []T {
+	if xs == nil {
+		xs = ys
+		return xs
+	} else {
+		result := []T{}
+		for _, x := range xs {
+			if slices.Contains(ys, x) {
+				result = append(result, x)
+			}
+		}
+		return result
+	}
 }
 
 // Map functions
