@@ -2,3 +2,4 @@ target/
 *.jar
 *.sw[op]
 _build/
+.session-cookie
