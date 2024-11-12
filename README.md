@@ -11,3 +11,4 @@ Individual years are solved in different languages:
 - 2021: Kotlin
 - 2022: OCaml
 - 2023: Go
+- 2024: Nim

@@ -14,6 +14,7 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version: '>=1.21'
+      - uses: iffy/install-nim@v4.5.0
       - run: ./test.sh
 
   lint:
