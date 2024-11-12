@@ -17,6 +17,7 @@ declare -A lang_names=(
     ["ocaml"]="OCaml"
     ["kotlin"]="Kotlin"
     ["go"]="Go"
+    ["nim"]="Nim"
 )
 
 get_lang() {
@@ -28,6 +29,8 @@ get_lang() {
         lang="kotlin"
     elif [[ ! -z $(find -name "*.go") ]]; then
         lang="go"
+    elif [[ ! -z $(find -name "*.nim") ]]; then
+        lang="nim"
     else
         lang="unknown"
     fi
@@ -60,6 +63,10 @@ run_kotlin() {
 
 run_go() {
     go run .
+}
+
+run_nim() {
+    nim compile --verbosity:0 -d:release --run $1.nim
 }
 
 run_year() {
