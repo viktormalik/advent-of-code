@@ -1,6 +1,5 @@
 import std/sequtils
 import std/strutils
-import std/sugar
 
 type Pos = tuple
   x, y: int

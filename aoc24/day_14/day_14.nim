@@ -1,8 +1,6 @@
-import os
 import std/math
 import std/sequtils
 import std/strutils
-import std/sugar
 
 const rows = 103
 const cols = 101
