@@ -3,4 +3,4 @@ target/
 *.sw[op]
 _build/
 .session-cookie
-aoc24/*/day_[0-9][0-9]
+aoc2[45]/*/day_[0-9][0-9]
