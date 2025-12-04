@@ -23,6 +23,18 @@ proc fourNeighs*(p: Pos): seq[Pos] =
     (x: p.x, y: p.y - 1)
   ]
 
+proc eightNeighs*(p: Pos): seq[Pos] =
+  @[
+    (x: p.x + 1, y: p.y),
+    (x: p.x - 1, y: p.y),
+    (x: p.x, y: p.y + 1),
+    (x: p.x, y: p.y - 1),
+    (x: p.x + 1, y: p.y + 1),
+    (x: p.x + 1, y: p.y - 1),
+    (x: p.x - 1, y: p.y - 1),
+    (x: p.x - 1, y: p.y + 1)
+  ]
+
 proc shortest*(src: Pos, dest: Pos, neighs: NeighFunc): Path =
   var todo = @[Path(ps: @[src], dist: 0)]
   var seen = toHashSet([src])
